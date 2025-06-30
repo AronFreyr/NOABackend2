@@ -3,6 +3,7 @@ from django.test import TestCase
 
 # Get the EXTERNAL_API_URL from the settings
 from django.conf import settings
+from .utils import get_dad_joke_from_api, DadJoke as DadJokeObj
 
 class DadJokesFromAPI(TestCase):
     """
@@ -22,3 +23,10 @@ class DadJokesFromAPI(TestCase):
         data = resp.json()
         self.assertIn('joke', data)
         self.assertIn('id', data)
+
+    def test_get_joke_util(self):
+        """Get a joke using the utility function."""
+        dad_joke = get_dad_joke_from_api()
+        self.assertIsInstance(dad_joke.joke, str)
+        self.assertIsInstance(dad_joke.site_id, str)
+        self.assertGreater(len(dad_joke.joke), 0)
