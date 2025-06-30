@@ -1,9 +1,12 @@
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.http import Http404
+
 from .models import DadJoke
 from .serializers import DadJokeSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from .utils import get_dad_joke_from_api
+
 
 class FetchAndStoreDadJokeFromAPI(APIView):
     """
@@ -38,3 +41,37 @@ class DadJokeList(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+
+class DadJokeDetail(APIView):
+    """
+    Retrieve, update or delete a snippet instance.
+    """
+    def get_object(self, pk: int) -> DadJoke:
+        """
+        Gets a dad joke object from the database.
+        """
+        try:
+            return DadJoke.objects.get(pk=pk)
+        except DadJoke.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk: int):
+        """Returns a dad joke with the given ID."""
+        dad_joke = self.get_object(pk)
+        serializer = DadJokeSerializer(dad_joke)
+        return Response(serializer.data)
+
+    def put(self, request, pk: int):
+        """Updates a dad joke with the given ID."""
+        dad_joke = self.get_object(pk)
+        serializer = DadJokeSerializer(dad_joke, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk: int):
+        """Deletes a dad joke with the given ID."""
+        dad_joke = self.get_object(pk)
+        dad_joke.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
