@@ -11,10 +11,15 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import configparser
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+# Location for configuration files.
+# Mostly used for testing purposes.
+CONFIG_DIR = BASE_DIR / 'DjangoDadJokes' / 'config'
+config = configparser.ConfigParser(allow_no_value=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -22,8 +27,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-9uqjs$xjtgx#aiq^k62l^pf0w(=cv9zo9btexv7r=v6@uo@uy2'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
+# Default to debug mode unless specified otherwise.
+# TODO: This is not a good practice for production, but it is useful for development.
+DEBUG = False if os.getenv("DEBUG") == "False" else True
+if DEBUG:
+    config.read(CONFIG_DIR / 'dev.ini')
+    assert CONFIG_DIR.exists()
+    EXTERNAL_API_URL = config.get('DEFAULT', 'EXTERNAL_API_URL')
+else:
+    EXTERNAL_API_URL = os.getenv('EXTERNAL_API_URL')
 
 ALLOWED_HOSTS = []
 
