@@ -1,0 +1,73 @@
+services:
+  django:
+    build:
+      context: .
+      target: dev
+    image: django-boilerplate
+    container_name: django-boilerplate
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - PYTHONPATH=/app/boilerplate
+    env_file: .env
+    volumes:
+      - "boilerplate_static_files:/var/www/static/"
+      - "boilerplate_media_files:/var/www/media/"
+      - ".:/app"
+    # NOTE that runserver runs ASGI in synchronous mode, if you want async uncomment second line
+    command: "python ./boilerplate/manage.py runserver 0.0.0.0:8000"
+#     command: "uvicorn boilerplate.asgi:application --reload --lifespan off --host 0.0.0.0"
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  postgres:
+    image: postgres:17.4
+    container_name: postgres-boilerplate
+    environment:
+      POSTGRES_DB: boilerplate
+      POSTGRES_PASSWORD: supersecret
+    volumes:
+      - "boilerplate_dbdata:/var/lib/postgresql/data"
+    # Expose port to localhost for debugging
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  redis:
+    image: redis:6.2
+    container_name: redis-boilerplate
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: rabbitmq-boilerplate
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=b0lag
+
+  celery-scheduler:
+    image: django-boilerplate
+    container_name: celery-scheduler-boilerplate
+    depends_on:
+      - django
+    env_file: .env
+    entrypoint: "celery -A boilerplate beat -l info"
+    volumes:
+      - "./boilerplate:/app"
+
+  celery-worker:
+    image: django-boilerplate
+    container_name: celery-worker-boilerplate
+    depends_on:
+      - django
+      - rabbitmq
+    env_file: .env
+    entrypoint: "celery -A boilerplate worker -l info"
+    volumes:
+      - "boilerplate_static_files:/var/www/static/"
+      - "boilerplate_media_files:/var/www/media/"
+      - "./boilerplate:/app"
+
+volumes:
+  boilerplate_dbdata:
+  boilerplate_static_files:
+  boilerplate_media_files:

@@ -1,0 +1,4 @@
+vault_DOCKER_ID: ""
+vault_DOCKER_EMAIL: ""
+vault_DOCKER_PASSWORD: ""
+vault_SENTRY_DSN: ""

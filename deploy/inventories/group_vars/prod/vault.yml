@@ -1,0 +1,3 @@
+vault_RABBITMQ_PASSWORD: ""
+vault_SECRET_KEY: ""
+vault_DB_PASSWORD: ""

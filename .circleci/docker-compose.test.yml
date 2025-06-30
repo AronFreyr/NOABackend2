@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  redis-boilerplate-ci:
+    image: redis:6.2
+    container_name: redis-boilerplate-ci
+
+  postgres-boilerplate-ci:
+    image: postgres:17.4
+    container_name: postgres-boilerplate-ci
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=password
+
+  django-boilerplate-ci:
+    build: ../
+    container_name: django-boilerplate-ci
+    depends_on:
+      - postgres-boilerplate-ci
+      - redis-boilerplate-ci
+    environment:
+      DB_HOST: postgres-boilerplate-ci
+      DB_USER: test
+      DB_PASSWORD: password
+      REDIS_URL: "redis://redis-boilerplate-ci:6379/2"
+      SECRET_KEY: "ci-test"
+      DEBUG: "False"
