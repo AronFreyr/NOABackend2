@@ -35,7 +35,7 @@ COPY gunicorn.conf.py /etc/gunicorn/gunicorn.conf.py
 # Create venv
 RUN uv venv /opt/venv
 # install dependencies
-COPY requirements.txt requirements.txt
+COPY DjangoDadJokes/requirements.txt requirements.txt
 RUN uv pip install -r requirements.txt
 # Create user, app directories and set permissions
 RUN groupadd --gid $USER_GID $USERNAME \

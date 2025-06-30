@@ -9,14 +9,15 @@ services:
       - postgres
       - redis
     environment:
-      - PYTHONPATH=/app/boilerplate
+      - PYTHONPATH=/app/NOABackend2/DjangoDadJokes
     env_file: .env
     volumes:
-      - "boilerplate_static_files:/var/www/static/"
-      - "boilerplate_media_files:/var/www/media/"
+      - "DjangoDadJokes_static_files:/var/www/static/"
+      - "DjangoDadJokes_media_files:/var/www/media/"
       - ".:/app"
+    entrypoint: ["/bin/sh", "/app/migrate_django_db.sh"]
     # NOTE that runserver runs ASGI in synchronous mode, if you want async uncomment second line
-    command: "python ./boilerplate/manage.py runserver 0.0.0.0:8000"
+    command: "python ./DjangoDadJokes/manage.py runserver 0.0.0.0:8000"
 #     command: "uvicorn boilerplate.asgi:application --reload --lifespan off --host 0.0.0.0"
     ports:
       - "127.0.0.1:8000:8000"
@@ -28,7 +29,7 @@ services:
       POSTGRES_DB: boilerplate
       POSTGRES_PASSWORD: supersecret
     volumes:
-      - "boilerplate_dbdata:/var/lib/postgresql/data"
+      - "DjangoDadJokes_dbdata:/var/lib/postgresql/data"
     # Expose port to localhost for debugging
     ports:
       - "127.0.0.1:5433:5432"
@@ -50,9 +51,9 @@ services:
     depends_on:
       - django
     env_file: .env
-    entrypoint: "celery -A boilerplate beat -l info"
+    entrypoint: "celery -A DjangoDadJokes beat -l info"
     volumes:
-      - "./boilerplate:/app"
+      - "./DjangoDadJokes:/app"
 
   celery-worker:
     image: django-boilerplate
@@ -61,13 +62,13 @@ services:
       - django
       - rabbitmq
     env_file: .env
-    entrypoint: "celery -A boilerplate worker -l info"
+    entrypoint: "celery -A DjangoDadJokes worker -l info"
     volumes:
-      - "boilerplate_static_files:/var/www/static/"
-      - "boilerplate_media_files:/var/www/media/"
-      - "./boilerplate:/app"
+      - "DjangoDadJokes_static_files:/var/www/static/"
+      - "DjangoDadJokes_media_files:/var/www/media/"
+      - "./DjangoDadJokes:/app"
 
 volumes:
-  boilerplate_dbdata:
-  boilerplate_static_files:
-  boilerplate_media_files:
+  DjangoDadJokes_dbdata:
+  DjangoDadJokes_static_files:
+  DjangoDadJokes_media_files:
